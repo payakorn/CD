@@ -14,6 +14,20 @@ function grid_num(hx::Real, hy::Real, tau::Real)
 end
 
 
+function matrix()
+    hx = 0.1
+    hy = 0.1
+    tau = 0.1
+    Re = 100
+    Nx, Ny = grid_num(hx, hy, tau)
+    y = zeros(2 * (Nx + 1) * (Ny + 1))
+    x = deepcopy(y)
+
+    A, ~ = matrix(x, y, hx, hy, Nx, Ny, tau, Re)
+    return A
+end
+
+
 function matrix(x, y, hx, hy, Nx, Ny, tau, Re)
 
     # parameter
