@@ -1,9 +1,10 @@
 module CD
 
-using Revise, SparseArrays, LinearAlgebra
+using Revise, SparseArrays, LinearAlgebra, Plots
 
 include("main.jl")
+include("inout.jl")
 
-export solve
+export solve, input
 
 end # module CD

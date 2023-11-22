@@ -15,8 +15,8 @@ end
 
 
 function matrix()
-    hx = 0.1
-    hy = 0.1
+    hx = 0.001
+    hy = 0.001
     tau = 0.1
     Re = 100
     Nx, Ny = grid_num(hx, hy, tau)
@@ -343,7 +343,7 @@ function solve(hx, hy, tau, Re; maxiter=10)
     @show Nx, Ny = grid_num(hx, hy, tau)
 
     y = zeros(2 * (Nx + 1) * (Ny + 1))
-    x = deepcopy(y)
+    x = y
 
     A, b = matrix(x, y, hx, hy, Nx, Ny, tau, Re)
 
@@ -354,9 +354,6 @@ function solve(hx, hy, tau, Re; maxiter=10)
     iter = 1
     error_save = []
     while error > 1e-6 && iter <= maxiter
-        # if disp_error
-        #     print('iter: {}'.format(iter))
-        # end
 
         if iter == 1
             A, b = matrix(x, x, hx, hy, Nx, Ny, tau, Re)
@@ -371,7 +368,9 @@ function solve(hx, hy, tau, Re; maxiter=10)
             y = x
 
             # solve linear sys
-            x = A \ b
+            # x = A \ b
+            luA = lu(A)
+            @time x = luA \ b
 
             # calculate error
             u = x[2:2:end]
@@ -379,46 +378,15 @@ function solve(hx, hy, tau, Re; maxiter=10)
             error = maximum(abs.((x-y)[2:end-1]))
 
             @info "iter: " * lpad("$iter ", 3) * "error: $(error)"
-
-
             append!(error_save, error)
-
-            # if disp_error
-            #     print('max   abs u: {}'.format(np.amax(np.abs(u))))
-            #     print('max   abs v: {}'.format(np.amax(np.abs(v))))
-            #     print('error abs v: {}'.format(error))
-            # end
             iter += 1
         end
     end
 
-    # if disp_error == false
-    #     print('iter: {}'.format(iter))
-    # end
-
-    # # elapsed time
-    # elapsed_time = time.time() - start_time
-    # print('time = ', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
-
-    # # u is even elements of x
-    # u = [x[i] for i in range(0, 2 * (Nx + 1) * (Ny + 1), 2)]
     u = reshape(u, (Nx + 1, Ny + 1))
-
-    # # v is odd elements of x
-    # v = [x[i] for i in range(1, 2 * (Nx + 1) * (Ny + 1), 2)]
     v = reshape(v, (Nx + 1, Ny + 1))
 
-    # # this for export to CSV
-    # if save
-    #     (X, Y) = grid(hx, hy, r=1)
-    #     np.savetxt("X_stream_{}_{}_{}.csv".format(Nx, Ny, Re), X, delimiter=",")
-    #     np.savetxt("Y_stream_{}_{}_{}.csv".format(Nx, Ny, Re), Y, delimiter=",")
-    #     np.savetxt("xi_{}_{}_{}.csv".format(Nx, Ny, Re), u, delimiter=",")
-    #     np.savetxt("phi_{}_{}_{}.csv".format(Nx, Ny, Re), v, delimiter=",")
-    # end
-
     elapsed_time = 10
-    # error_save = 10
 
     return u, v, elapsed_time, error_save, iter
 end
