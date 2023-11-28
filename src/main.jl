@@ -338,7 +338,14 @@ function matrix(x, y, hx, hy, Nx, Ny, tau, Re)
 end
 
 
-function solve(hx, hy, tau, Re; maxiter=10)
+function print_Error(iter, maxiter, Error)
+    max_pad = length(string(maxiter))
+    print("|$(Dates.format(Dates.now(), "HH:MM:SS"))|" * lpad("$iter", max_pad) * "/$maxiter|")
+    @printf("%.5e|\n", Error)
+end
+
+
+function solve(hx, hy, tau, Re; maxiter=10, figsave=true)
 
     @show Nx, Ny = grid_num(hx, hy, tau)
 
@@ -350,35 +357,35 @@ function solve(hx, hy, tau, Re; maxiter=10)
     println("Matrix A -> size: $(size(A))")
     println("Matrix b -> size: $(size(b))")
 
-    error = 1
+    Error = 1
     iter = 1
-    error_save = []
-    while error > 1e-6 && iter <= maxiter
+    Error_save = []
+    while Error > 1e-6 && iter <= maxiter
 
         if iter == 1
             A, b = matrix(x, x, hx, hy, Nx, Ny, tau, Re)
             x = A \ b
-            error = norm(x - y)
-            @info "iter: " * lpad("$iter ", 3) * "error: $(error)"
+            Error = norm(x - y)
+            print_Error(iter, maxiter, Error)
             iter += 1
         else
             A, b = matrix(x, y, hx, hy, Nx, Ny, tau, Re)
-
+            
             # save time step n to y
             y = x
-
+            
             # solve linear sys
             # x = A \ b
             luA = lu(A)
-            @time x = luA \ b
-
-            # calculate error
+            x = luA \ b
+            
+            # calculate Error
             u = x[2:2:end]
             v = x[1:2:end]
-            error = maximum(abs.((x-y)[2:end-1]))
-
-            @info "iter: " * lpad("$iter ", 3) * "error: $(error)"
-            append!(error_save, error)
+            Error = maximum(abs.((x-y)[2:end-1]))
+            
+            print_Error(iter, maxiter, Error)
+            append!(Error_save, Error)
             iter += 1
         end
     end
@@ -388,5 +395,13 @@ function solve(hx, hy, tau, Re; maxiter=10)
 
     elapsed_time = 10
 
-    return u, v, elapsed_time, error_save, iter
+    if figsave
+        # fig_name = "$(Dates.format(Dates.now(), "YY-MM-DD"))"
+        fig_name = "hx_$(hx)_hy_$(hy)_tau_$(tau)_Re_$(Re)"
+        savefig(contour(u, fill=true, title=fig_name), "fig/U/$(fig_name)_U.png");
+        savefig(contour(v, fill=true, title=fig_name), "fig/V/$(fig_name)_V.png");
+        @info "Done!!!"
+    end
+
+    # return u, v, elapsed_time, Error_save, iter
 end
