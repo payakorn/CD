@@ -6,7 +6,7 @@ using REPL.TerminalMenus
 function start()
 
     options = [
-        "hx=hy=τ=0.1, Re=100, maxiter=10",
+        "hx=hy=τ=0.1, Re=100, maxiter=100",
         "hx=hy=τ=0.01, Re=100, maxiter=100",
         "Manually Input"
     ]
@@ -19,13 +19,13 @@ function start()
         if choice == 1
             hx=hy=tau=0.1
             Re=100
-            maxiter=10
-            solve(hx, hy, tau, Re; maxiter=maxiter);
+            max_iteration=100
+            u, v, elapsed_time, error_save, iteration = sys_stream(hx, hy, tau, Re; max_iteration=max_iteration);
         elseif choice == 2
             hx=hy=tau=0.01
             Re=100
-            maxiter=100
-            solve(hx, hy, tau, Re; maxiter=maxiter);
+            max_iteration=100
+            u, v, elapsed_time, error_save, iteration = sys_stream(hx, hy, tau, Re; max_iteration=max_iteration);
         elseif choice == 3
             print("Input hx: ")
             hx = parse(Float64, readline())
@@ -40,14 +40,13 @@ function start()
             Re = parse(Float64, readline())
             
             print("Input max iter: ")
-            maxiter = parse(Int64, readline())
+            max_iteration = parse(Int64, readline())
 
-            solve(hx, hy, tau, Re; maxiter=maxiter);
+            u, v, elapsed_time, error_save, iteration = sys_stream(hx, hy, tau, Re; max_iteration=max_iteration);
         end
     else
         println("Canceled.")
     end
-
-    # hx, hy, tau, Re; maxiter=10
+    return u, v, elapsed_time, error_save, iteration
 end
 
