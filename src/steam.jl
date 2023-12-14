@@ -382,7 +382,8 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             println("max   abs u: $(maximum(x[1:2:end]))")
             println("max   abs v: $(maximum(x[2:2:end]))")
             v = x[2:2:end]
-            println("error abs v: $(maximum(abs.(x[2:2:end]-y[2:2:end])))")
+            error = maximum(abs.(x[2:2:end]-y[2:2:end]))
+            println("error abs v: $(error)")
             # end
             @info "iter: $iteration/$max_iteration"
             iteration += 1
