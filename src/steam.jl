@@ -379,17 +379,18 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             # error_save.append(error)
 
             # if disp_error
-            #     print("max   abs u: {}".format(np.amax(np.abs(u))))
-            #     print("max   abs v: {}".format(np.amax(np.abs(v))))
-            #     print("error abs v: {}".format(error))
+            println("max   abs u: $(maximum(x[1:2:end]))")
+            println("max   abs v: $(maximum(x[2:2:end]))")
+            v = x[2:2:end]
+            println("error abs v: $(maximum(abs.(x[2:2:end]-y[2:2:end])))")
             # end
             @info "iter: $iteration/$max_iteration"
             iteration += 1
         end
     end
 
-    u = x[2:2:end]
-    v = x[1:2:end]
+    u = x[1:2:end]
+    v = x[2:2:end]
 
     u = reshape(u, (Nx + 1, Ny + 1))
     v = reshape(v, (Nx + 1, Ny + 1))
@@ -418,7 +419,25 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
     elapsed_time = 0
 
     # return u, v, elapsed_time, error_save, iteration
+
+    """
+        v = v[2:end-1, 2:end-1]
+        contour(v, fill=true, levels=1000, color=:leonardo)
+    """
+
     return u, v, elapsed_time, error_save, iteration
+end
+
+
+function plot_contour(v)
+    m = minimum(v)
+    M = maximum(v)
+
+    sc1 = collect(m:-m/50:0)
+    sc2 = collect(0:m/10:M)
+    sc = [sc1; sc2]
+
+    contourf(v, levels=sc, fill=false, color=:turbo)
 end
 
 
