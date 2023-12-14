@@ -1,28 +1,18 @@
 # new section for Stream function
 function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=false, left=0, right=0, top=1, below=0)
-    # input step size (hx, hy) and (tau)
-    # save = True if we need to export solution
 
-    # start_time = time.time()
-
+    # boundrary
     xr = 0
-    # xr -= hx/2
     xl = 1
-    # xl += hx/2
 
     yr = 0
-    # yr -= hy/2
     yl = 1
-    # yl += hy/2
 
     # the number
     Nx = Int64((xl - xr) / (hx))
     Ny = Int64((yl - yr) / (hy))
-    # if disp_error is True:
-    #     print("Nx = {}".format(Nx))
-    #     print("Ny = {}".format(Ny))
 
-    # function return the position of u and in vector
+    # function return the position of u and v in vector
     function index_u(i, j)
         return 2 * ((i) * (Ny + 1) + j) + 1
     end
@@ -31,7 +21,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
         return 2 * ((i) * (Ny + 1) + j) + 2
     end
 
-    # create empty vector for storing element in matrix
+    # create empty vector for storing elements in matrix
     index_i = []
     index_j = []
 
@@ -65,7 +55,6 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
         for i in 0:(Nx)
             for j in 0:(Ny)
                 if i == Nx && j == Ny
-
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i, j))
                     append!(index_k, 1)
@@ -87,6 +76,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
 
                     b[index_u(i, j)] = hx*right
                     b[index_v(i, j)] = 0
+
                 elseif i == 0 && j == Ny
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i + 1, j))
@@ -112,6 +102,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
 
                     b[index_u(i, j)] = hx*left
                     b[index_v(i, j)] = 0
+
                 elseif i == 0 && j == 0
 
                     append!(index_i, index_u(i, j))
@@ -143,6 +134,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
 
                     b[index_u(i, j)] = hx*below
                     b[index_v(i, j)] = 0
+
                 elseif j == Ny
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i, j))
@@ -166,6 +158,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
 
                     b[index_u(i, j)] = hy*top
                     b[index_v(i, j)] = 0
+
                 elseif i == 0
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i, j))
@@ -191,6 +184,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
 
                     b[index_u(i, j)] = hx*left
                     b[index_v(i, j)] = 0
+
                 elseif i == Nx
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i, j))
@@ -281,7 +275,6 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     append!(index_j, index_u(i, j + 1))
                     append!(index_k, tau * Re / (8 * hx * hy) * phi_x - tau / (2.0 * hx ^ 2))
 
-                    # add
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i, j + 1))
                     append!(index_k, -tau * Re / (8 * hx * hy) * xi_x)
@@ -290,7 +283,6 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     append!(index_j, index_u(i, j - 1))
                     append!(index_k, -tau * Re / (8 * hx * hy) * phi_x - tau / (2.0 * hx ^ 2))
 
-                    # add
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i, j - 1))
                     append!(index_k, tau * Re / (8 * hx * hy) * xi_x)
@@ -300,7 +292,6 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     append!(index_j, index_u(i + 1, j))
                     append!(index_k, -tau * Re / (8 * hx * hy) * phi_y - tau / (2.0 * hx ^ 2))
 
-                    # add
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i + 1, j))
                     append!(index_k, tau * Re / (8 * hx * hy) * xi_y)
@@ -309,7 +300,6 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     append!(index_j, index_u(i - 1, j))
                     append!(index_k, tau * Re / (8 * hx * hy) * phi_y - tau / (2.0 * hx ^ 2))
 
-                    # add
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i - 1, j))
                     append!(index_k, -tau * Re / (8 * hx * hy) * xi_y)
@@ -341,7 +331,10 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
         return (sparse(index_i, index_j, index_k, 2 * (Nx + 1) * (Ny + 1), 2 * (Nx + 1) * (Ny + 1)), b)
     end
 
-    # y is initial solution
+    # start
+    start_time = Dates.now()
+
+    # y is an initial solution
     y = zeros(2 * (Nx + 1) * (Ny + 1))
 
     # Loop updating x from x=A^-1*b
@@ -360,7 +353,10 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             A, b = create_matrix_stream(x, x, Nx=Nx, Ny=Ny, tau=tau, Re=Re)
             luA = lu(A)
             x = luA \ b
-            # error = np.linalg.norm(x - y)
+
+            @info "$(Dates.format(Dates.now(), Dates.dateformat"dd u Y -- H:M:S")) iter: $iteration/$max_iteration"
+            println("\t max \t abs u: $(maximum(x[1:2:end]))")
+            println("\t max \t abs v: $(maximum(x[2:2:end]))")
             iteration += 1
         else
             A, b = create_matrix_stream(x, y, Nx=Nx, Ny=Ny, tau=tau, Re=Re)
@@ -373,19 +369,20 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             x = luA \ b
 
             # calculate error
-            # u = [x[i] for i in range(0, 2 * (Nx + 1) * (Ny + 1), 2)]
-            # v = [x[i] for i in range(1, 2 * (Nx + 1) * (Ny + 1), 2)]
-            # error = np.amax(np.abs([x[i] - y[i] for i in range(1, 2 * (Nx + 1) * (Ny + 1), 2)]))
-            # error_save.append(error)
+            @info "$(Dates.format(Dates.now(), Dates.dateformat"dd u Y -- H:M:S")) iter: $iteration/$max_iteration"
+            println("\t max \t abs u: $(maximum(x[1:2:end]))")
+            println("\t max \t abs v: $(maximum(x[2:2:end]))")
 
-            # if disp_error
-            println("max   abs u: $(maximum(x[1:2:end]))")
-            println("max   abs v: $(maximum(x[2:2:end]))")
             v = x[2:2:end]
             error = maximum(abs.(x[2:2:end]-y[2:2:end]))
-            println("error abs v: $(error)")
-            # end
-            @info "iter: $iteration/$max_iteration"
+            println("\t error \t abs v: $(error)")
+
+            # save every 10 iterations
+            if iteration % 5 == 0
+                # plot_contour(reshape(v, (Nx + 1, Ny + 1)), "fig/save/checkpoint_$iteration.png")
+                save_checkpoint("checkpoint/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
+            end
+
             iteration += 1
         end
     end
@@ -396,164 +393,56 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
     u = reshape(u, (Nx + 1, Ny + 1))
     v = reshape(v, (Nx + 1, Ny + 1))
 
-    # elapsed time
-    # elapsed_time = time.time() - start_time
-    # print("time = ", time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
-
-    # u is even elements of x
-    # u = [x[i] for i in range(0, 2 * (Nx + 1) * (Ny + 1), 2)]
-    # u = np.reshape(u, [Nx + 1, Ny + 1])
-
-    # # v is odd elements of x
-    # v = [x[i] for i in range(1, 2 * (Nx + 1) * (Ny + 1), 2)]
-    # v = np.reshape(v, [Nx + 1, Ny + 1])
-
-    # # this for export to CSV
-    # if save
-    #     (X, Y) = grid(hx, hy, r=1)
-    #     np.savetxt("X_stream_{}_{}_{}.csv".format(Nx, Ny, Re), X, delimiteration=",")
-    #     np.savetxt("Y_stream_{}_{}_{}.csv".format(Nx, Ny, Re), Y, delimiteration=",")
-    #     np.savetxt("xi_{}_{}_{}.csv".format(Nx, Ny, Re), u, delimiteration=",")
-    #     np.savetxt("phi_{}_{}_{}.csv".format(Nx, Ny, Re), v, delimiteration=",")
-    # end
-
-    elapsed_time = 0
-
-    # return u, v, elapsed_time, error_save, iteration
-
-    """
-        v = v[2:end-1, 2:end-1]
-        contour(v, fill=true, levels=1000, color=:leonardo)
-    """
+    stop_time = Dates.now()
+    elapsed_time = Dates.canonicalize(Dates.CompoundPeriod(Dates.DateTime(stop_time) - Dates.DateTime(start_time)))
+    @info "elapsed time = $elapsed_time"
 
     return u, v, elapsed_time, error_save, iteration
 end
 
 
-function plot_contour(v)
+function plot_contour(v::Matrix; save_name=nothing, title=nothing)
     m = minimum(v)
     M = maximum(v)
 
-    sc1 = collect(m:-m/50:0)
-    sc2 = collect(0:m/10:M)
+    sc1 = collect(m:-m/20:0)
+    sc2 = collect(0:M/100:M)
     sc = [sc1; sc2]
 
-    contourf(v, levels=sc, fill=false, color=:turbo)
+    # plot contour
+    # Plots.savefig(Plots.contour(u, fill=false, levels=sc), "test_u.pdf");
+    plt = Plots.contour(v, fill=false, levels=sc, color=:turbo), save_name
+
+    # add title
+    if !isnothing(title)
+        title!(title)
+    end
+
+    # save 
+    if !isnothing(save_name)
+        Plots.savefig(plt, save_name)
+    end
+
 end
 
 
-# def stream( hx, hy, tau, Re; save=false, max_iteration=100, disp_error=false, epsilon=false, left=0, right=0, top=1, below=0)
-    # u, v, elapsed_time, error_save, iteration = sys_stream(hx, hy, tau, Re, max_iteration=max_iteration, disp_error=disp_error, epsilon=epsilon, left=left, right=right, top=top, below=below)
-    # max_u = np.amax(np.abs(u))
-    # max_v = np.amax(np.abs(v))
-
-    # # save output to text file
-    # if save is True:
-    #     np.savetxt(
-    #         "stream_save/u-{}-{}-{}.txt".format(Re, hx, iteration), u, fmt="%1.4e"
-    #     )  # use exponential notation
-    #     np.savetxt(
-    #         "stream_save/v-{}-{}-{}.txt".format(Re, hx, iteration), v, fmt="%1.4e"
-    #     )  # use exponential notation
-    #     np.savetxt(
-    #         "stream_save/u-{}-{}-{}.out".format(Re, hx, iteration), u, fmt="%1.4e"
-    #     )  # use exponential notation
-    #     np.savetxt(
-    #         "stream_save/v-{}-{}-{}.out".format(Re, hx, iteration), v, fmt="%1.4e"
-    #     )  # use exponential notation
-    #     np.savetxt(
-    #         "stream_save/v-error-{}-{}.txt".format(Re, hx), error_save, fmt="%1.4e"
-    #     )  # use exponential notation
-    #     np.savetxt(
-    #         "stream_save/v-error-{}-{}.out".format(Re, hx), error_save, fmt="%1.4e"
-    #     )  # use exponential notation
-
-    # if plot is True:
-    #     # X, Y = grid(hx, hy, r=1)
-    #     xi = np.transpose(u)
-    #     phi = np.transpose(v)
-    #     m = np.amin(phi)
-    #     M = np.amax(phi)
-    #     print("min phi = {}".format(m))
-    #     print("max phi = {}".format(M))
-    #     # cp = plt.contourf(x, y, phi, cmap='RdGy', )
-    #     sort_phi = np.sort(np.reshape(phi, -1))
-    #     N = np.argmax(sort_phi > 0)
-    #     new_sc1 = sort_phi[0:N-500:100]
-    #     new_sc2 = sort_phi[N:-1]
-    #     sc1 = np.arange(m, 0, -m / 20)
-    #     sc2 = np.arange(0, M, M / 20)
-    #     new_sc = np.append(new_sc1, new_sc2)
-    #     sc = np.append(sc1, sc2)
-    #     cp = plt.contour(phi, levels=sc, cmap="RdGy")
-    #     plt.gca().set_aspect("equal")
-    #     print("fig size = {}".format(np.shape(phi)))
-    #     plt.clabel(cp, inline=True, fontsize=8)
-    #     plt.colorbar(cp)
-    #     plt.show()
-    #     # plot_3d(x, y, phi)
-
-    # print("max norm xi  = {}".format(max_u))
-    # print("max norm phi = {}".format(max_v))
-    # print("error = {}".format(error_save[-1]))
-
-    # return xi, phi, error_save
-
-# def four_points(hx):
-#     epsilon = (1e-8, 1e-8, 1e-8, 1e-8, 1e-8, 1e-8)
-#     u, v, error = stream(
-#         hx=hx,
-#         hy=hx,
-#         tau=hx,
-#         Re=100,
-#         plot=True,
-#         save=False,
-#         max_iteration=500,
-#         disp_error=False,
-#         epsilon=epsilon,
-#     )
-
-#     xr = 0
-#     xr -= hx/2
-#     xl = 1
-#     xl += hx/2
-
-#     yr = 0
-#     yr -= hx/2
-#     yl = 1
-#     yl += hx/2
-
-#     Nx = int((xl - xr) / (hx))
-#     Ny = int((yl - yr) / (hx))
-
-#     xi = np.zeros()
-
-#     for i in range(1, Nx):
-#         for j in range(1, Ny):
-#             xi[i, j] = ()
-    
+function save_checkpoint(file_name::String, matrix)
+    open(file_name, "w") do io
+        writedlm(io, matrix)
+    end
+end
 
 
-# # # run code here
-# if __name__ == "__main__":
-#     hx = 1 / 52
-#     tau = hx^2
-#     epsilon = (1e-8, 1e-8, 1e-8, 1e-8, 1e-8, 0)
-#     u, v, error = stream(
-#         hx=hx,
-#         hy=hx,
-#         tau=tau,
-#         Re=100,
-#         plot=True,
-#         save=False,
-#         max_iteration=100,
-#         disp_error=True,
-#         epsilon=epsilon,
-#         left=0,
-#         right=0,
-#         top=4,
-#         below=0,
-#     )
-#     # plot boundray
+function load_checkpoint(file_name::String)
+    readdlm(file_name)
+end
 
-    
+
+function plot_gif()
+    file_names = ["checkpoint/iter_$iter.txt" for iter in 5:5:100]
+    anim = @animate for file_name in file_names
+        v = load_checkpoint(file_name)
+        plot_contour(v, title=file_name)
+    end
+    gif(anim, "anim_fps5.gif", fps = 5)
+end
