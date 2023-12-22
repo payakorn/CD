@@ -1,5 +1,9 @@
 # new section for Stream function
-function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=false, left=0, right=0, top=1, below=0)
+function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=false, left=0, right=0, top=1, below=0, save_every=5)
+
+    # delete folder checkpoint
+    rm("checkpoints", recursive=true, force=true)
+    mkpath("checkpoints")
 
     # boundrary
     xr = 0
@@ -378,17 +382,18 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             println("\t error \t abs v: $(error)")
 
             # save every 10 iterations
-            if iteration % 5 == 0
+            if iteration % save_every == 0
                 # plot_contour(reshape(v, (Nx + 1, Ny + 1)), "fig/save/checkpoint_$iteration.png")
                 save_checkpoint("checkpoint/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
             end
-
+            
             iteration += 1
         end
     end
-
+    
     u = x[1:2:end]
     v = x[2:2:end]
+    save_checkpoint("checkpoint/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
 
     u = reshape(u, (Nx + 1, Ny + 1))
     v = reshape(v, (Nx + 1, Ny + 1))
@@ -438,11 +443,41 @@ function load_checkpoint(file_name::String)
 end
 
 
-function plot_gif()
-    file_names = ["checkpoint/iter_$iter.txt" for iter in 5:5:100]
+"""
+    natural(x, y)
+
+sort String on natural way e.g. A2 < A10
+
+# Examples:
+```julia-repl
+julia> sort(["a1", "a2", "a10"], lt=VRPTW.natural)
+3-element Vector{String}:
+ "a1"
+ "a2"
+ "a10"
+```
+"""
+function natural(x, y)
+    k(x) = [occursin(r"\d+", s) ? parse(Int, s) : s
+            for s in split(replace(x, r"\d+" => s -> " $s "))]
+    A = k(x)
+    B = k(y)
+    for (a, b) in zip(A, B)
+        if !isequal(a, b)
+            return typeof(a) <: typeof(b) ? isless(a, b) :
+                   isa(a, Int) ? true : false
+        end
+    end
+    return length(A) < length(B)
+end
+
+
+function plot_gif(; save_name="anim_fps5.gif")
+    # file_names = ["checkpoint/iter_$iter.txt" for iter in 5:5:100]
+    file_names = sort(glob("*", "checkpoint"), lt=natural)
     anim = @animate for file_name in file_names
         v = load_checkpoint(file_name)
         plot_contour(v, title=file_name)
     end
-    gif(anim, "anim_fps5.gif", fps = 5)
+    gif(anim, save_name, fps = 5)
 end

@@ -360,40 +360,42 @@ function solve(hx, hy, tau, Re; maxiter=10, figsave=true)
     Error = 1
     iter = 1
     Error_save = []
-    while Error > 1e-6 && iter <= maxiter
+    ex_time = @elapsed begin
+        while Error > 1e-6 && iter <= maxiter
 
-        if iter == 1
-            A, b = matrix(x, x, hx, hy, Nx, Ny, tau, Re)
-            x = A \ b
-            Error = norm(x - y)
-            print_Error(iter, maxiter, Error)
-            iter += 1
-        else
-            A, b = matrix(x, y, hx, hy, Nx, Ny, tau, Re)
-            
-            # save time step n to y
-            y = x
-            
-            # solve linear sys
-            # x = A \ b
-            luA = lu(A)
-            x = luA \ b
-            
-            # calculate Error
-            u = x[2:2:end]
-            v = x[1:2:end]
-            Error = maximum(abs.((x-y)[2:end-1]))
-            
-            print_Error(iter, maxiter, Error)
-            append!(Error_save, Error)
-            iter += 1
+            if iter == 1
+                A, b = matrix(x, x, hx, hy, Nx, Ny, tau, Re)
+                x = A \ b
+                Error = norm(x - y)
+                print_Error(iter, maxiter, Error)
+                iter += 1
+            else
+                A, b = matrix(x, y, hx, hy, Nx, Ny, tau, Re)
+                
+                # save time step n to y
+                y = x
+                
+                # solve linear sys
+                # x = A \ b
+                luA = lu(A)
+                x = luA \ b
+                
+                # calculate Error
+                u = x[2:2:end]
+                v = x[1:2:end]
+                Error = maximum(abs.((x-y)[2:end-1]))
+                
+                print_Error(iter, maxiter, Error)
+                append!(Error_save, Error)
+                iter += 1
+            end
         end
     end
 
     u = reshape(u, (Nx + 1, Ny + 1))
     v = reshape(v, (Nx + 1, Ny + 1))
 
-    elapsed_time = 10
+    # elapsed_time = 10
 
     if figsave
         # fig_name = "$(Dates.format(Dates.now(), "YY-MM-DD"))"
