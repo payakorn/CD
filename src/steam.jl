@@ -384,7 +384,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             # save every 10 iterations
             if iteration % save_every == 0
                 # plot_contour(reshape(v, (Nx + 1, Ny + 1)), "fig/save/checkpoint_$iteration.png")
-                save_checkpoint("checkpoint/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
+                save_checkpoint("checkpoints/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
             end
             
             iteration += 1
@@ -393,7 +393,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
     
     u = x[1:2:end]
     v = x[2:2:end]
-    save_checkpoint("checkpoint/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
+    save_checkpoint("checkpoints/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
 
     u = reshape(u, (Nx + 1, Ny + 1))
     v = reshape(v, (Nx + 1, Ny + 1))
@@ -474,7 +474,7 @@ end
 
 function plot_gif(; save_name="anim_fps5.gif")
     # file_names = ["checkpoint/iter_$iter.txt" for iter in 5:5:100]
-    file_names = sort(glob("*", "checkpoint"), lt=natural)
+    file_names = sort(glob("*", "checkpoints"), lt=natural)
     anim = @animate for file_name in file_names
         v = load_checkpoint(file_name)
         plot_contour(v, title=file_name)
