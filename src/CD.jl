@@ -6,6 +6,6 @@ include("steam.jl")
 include("main.jl")
 include("input.jl")
 
-export solve, start
+export start
 
 end # module CD
