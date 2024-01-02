@@ -26,15 +26,15 @@ function start()
     choice2 = request("Choose your favorite epsilon:", menu2)
 
     if choice2 == 1
-        epsilon1 = 1e-8
-        epsilon2 = 1e-8
-        epsilon3 = 1e-8
-        epsilon4 = 1e-8
+        epsilon1  = 1e-8
+        epsilon2  = 1e-8
+        epsilon3  = 1e-8
+        epsilon4  = 1e-8
         epsilon12 = 1e-8
         epsilon23 = 1e-8
         epsilon34 = 1e-8
         epsilon14 = 1e-8
-    elseif choice == 2
+    elseif choice2 == 2
         print(" > Input epsilon1: ")
         epsilon1 = parse(Float64, readline())
         
