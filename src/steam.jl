@@ -1,7 +1,7 @@
 # new section for Stream function
-function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=false, left=0, right=0, top=1, below=0, save_every=5)
+function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=5)
 
-    # delete folder checkpoint
+    # delete folder checkpoints
     rm("checkpoints", recursive=true, force=true)
     mkpath("checkpoints")
 
@@ -29,7 +29,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
     index_i = []
     index_j = []
 
-    function create_matrix_stream(x, y; Nx=false, Ny=false, tau=false, Re=Re, index_i=index_i, index_j=index_j)
+    function create_matrix_stream(x, y; Nx=false, Ny=false, tau=false, Re=Re, index_i=index_i, index_j=index_j, epsilon=nothing)
         index_i = []
         index_j = []
         index_k = []
@@ -38,21 +38,25 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
         b = zeros(2 * (Nx + 1) * (Ny + 1))
 
         # epsilon
-        if !epsilon
+        if isnothing(epsilon)
             epsilon1 = 1e-8  # 1 =  Nx, Ny
             epsilon2 = 1e-8  # 2 =   0, Ny
             epsilon3 = 1e-8  # 3 =   0,  0
             epsilon4 = 1e-8  # 4 =   i = 0
-            epsilon5 = 1e-8  # 5 =   i = Nx
-            epsilon6 = 1e-8  # 6 =   j = 0
+            epsilon12 = 1e-8  # 5 =   i = Nx
+            epsilon23 = 1e-8  # 6 =   j = 0
+            epsilon34 = 1e-8  # 6 =   j = 0
+            epsilon14 = 1e-8  # 6 =   j = 0
         else
             (
                 epsilon1,
                 epsilon2,
                 epsilon3,
                 epsilon4,
-                epsilon5,
-                epsilon6,
+                epsilon12,
+                epsilon23,
+                epsilon34,
+                epsilon14,
             ) = epsilon
         end
 
@@ -72,10 +76,33 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     append!(index_k, 1)
 
                     # perturb
-                    if epsilon1 != 0
+                    if epsilon3 != 0
                         append!(index_i, index_u(i, j))
                         append!(index_j, index_u(i, j))
-                        append!(index_k, epsilon1)
+                        append!(index_k, epsilon3)
+                    end
+
+                    b[index_u(i, j)] = hx*right
+                    b[index_v(i, j)] = 0
+
+                elseif i == Nx && j == 0
+                    append!(index_i, index_u(i, j))
+                    append!(index_j, index_v(i, j))
+                    append!(index_k, 1)
+
+                    append!(index_i, index_u(i, j))
+                    append!(index_j, index_v(i - 1, j))
+                    append!(index_k, -1)
+
+                    append!(index_i, index_v(i, j))
+                    append!(index_j, index_v(i, j))
+                    append!(index_k, 1)
+
+                    # perturb
+                    if epsilon4 != 0
+                        append!(index_i, index_u(i, j))
+                        append!(index_j, index_u(i, j))
+                        append!(index_k, epsilon4)
                     end
 
                     b[index_u(i, j)] = hx*right
@@ -130,10 +157,10 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     append!(index_j, index_v(i + 1, j))
                     append!(index_k, 1)
 
-                    if epsilon3 != 0
+                    if epsilon1 != 0
                         append!(index_i, index_u(i, j))
                         append!(index_j, index_u(i, j))
-                        append!(index_k, epsilon3)
+                        append!(index_k, epsilon1)
                     end
 
                     b[index_u(i, j)] = hx*below
@@ -160,6 +187,12 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     append!(index_j, index_v(i + 1, j))
                     append!(index_k, 1)
 
+                    if epsilon23 != 0
+                        append!(index_i, index_u(i, j))
+                        append!(index_j, index_u(i, j))
+                        append!(index_k, epsilon23)
+                    end
+
                     b[index_u(i, j)] = hy*top
                     b[index_v(i, j)] = 0
 
@@ -180,10 +213,10 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     # append!(index_j, index_v(i, j + 1))
                     # append!(index_k, 1)
 
-                    if epsilon4 != 0
+                    if epsilon12 != 0
                         append!(index_i, index_u(i, j))
                         append!(index_j, index_u(i, j))
-                        append!(index_k, epsilon4)
+                        append!(index_k, epsilon12)
                     end
 
                     b[index_u(i, j)] = hx*left
@@ -206,10 +239,10 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     # append!(index_j, index_v(i, j - 1))
                     # append!(index_k, 1)
 
-                    if epsilon5 != 0
+                    if epsilon34 != 0
                         append!(index_i, index_u(i, j))
                         append!(index_j, index_u(i, j))
-                        append!(index_k, epsilon5)
+                        append!(index_k, epsilon34)
                     end
 
                     b[index_u(i, j)] = hx*right
@@ -231,10 +264,10 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
                     # append!(index_j, index_v(i + 1, j))
                     # append!(index_k, 1)
 
-                    if epsilon6 != 0
+                    if epsilon14 != 0
                         append!(index_i, index_u(i, j))
                         append!(index_j, index_u(i, j))
-                        append!(index_k, epsilon6)
+                        append!(index_k, epsilon14)
                     end
 
                     b[index_u(i, j)] = hx*below
@@ -354,7 +387,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
         end
 
         if iteration == 1
-            A, b = create_matrix_stream(x, x, Nx=Nx, Ny=Ny, tau=tau, Re=Re)
+            A, b = create_matrix_stream(x, x, Nx=Nx, Ny=Ny, tau=tau, Re=Re, epsilon=epsilon)
             luA = lu(A)
             x = luA \ b
 
@@ -363,7 +396,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             println("\t max \t abs v: $(maximum(x[2:2:end]))")
             iteration += 1
         else
-            A, b = create_matrix_stream(x, y, Nx=Nx, Ny=Ny, tau=tau, Re=Re)
+            A, b = create_matrix_stream(x, y, Nx=Nx, Ny=Ny, tau=tau, Re=Re, epsilon=epsilon)
 
             # save time step n to y
             y = deepcopy(x)
