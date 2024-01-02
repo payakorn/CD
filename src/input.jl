@@ -19,7 +19,8 @@ function start()
     
     # 
     options2 = [
-        "All epsilon = 1e-8",
+        "Each epsilon = 1e-8",
+        "Input the same epsilon:",
         "Input Manually",
     ]
     menu2 = RadioMenu(options2, pagesize=10)
@@ -34,7 +35,19 @@ function start()
         epsilon23 = 1e-8
         epsilon34 = 1e-8
         epsilon14 = 1e-8
+
     elseif choice2 == 2
+        print(" > Input all epsilon: ")
+        epsilon1 = parse(Float64, readline())
+        epsilon2  = epsilon1
+        epsilon3  = epsilon1
+        epsilon4  = epsilon1
+        epsilon12 = epsilon1
+        epsilon23 = epsilon1
+        epsilon34 = epsilon1
+        epsilon14 = epsilon1
+
+    elseif choice2 == 3
         print(" > Input epsilon1: ")
         epsilon1 = parse(Float64, readline())
         
