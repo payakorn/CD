@@ -1,5 +1,5 @@
 # new section for Stream function
-function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=false, left=0, right=0, top=1, below=0, save_every=5)
+function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=5)
 
     # delete folder checkpoint
     rm("checkpoints", recursive=true, force=true)
@@ -38,7 +38,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
         b = zeros(2 * (Nx + 1) * (Ny + 1))
 
         # epsilon
-        if !epsilon
+        if isnothing(epsilon)
             epsilon1 = 1e-8  # 1 =  Nx, Ny
             epsilon2 = 1e-8  # 2 =   0, Ny
             epsilon3 = 1e-8  # 3 =   0,  0
@@ -380,6 +380,7 @@ function sys_stream(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilo
             v = x[2:2:end]
             error = maximum(abs.(x[2:2:end]-y[2:2:end]))
             println("\t error \t abs v: $(error)")
+            push!(error_save, error)
 
             # save every 10 iterations
             if iteration % save_every == 0
@@ -820,6 +821,7 @@ function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
             v = x[2:2:end]
             error = maximum(abs.(x[2:2:end]-y[2:2:end]))
             println("\t error \t abs v: $(error)")
+            push!(error_save, error)
 
             # save every 10 iterations
             if iteration % save_every == 0
@@ -912,9 +914,9 @@ function natural(x, y)
 end
 
 
-function plot_gif(; save_name="anim_fps5.gif")
+function plot_gif(; save_name="anim_fps5.gif", folder="checkpoints")
     # file_names = ["checkpoint/iter_$iter.txt" for iter in 5:5:100]
-    file_names = sort(glob("*", "checkpoints"), lt=natural)
+    file_names = sort(glob("*", folder), lt=natural)
     anim = @animate for file_name in file_names
         v = load_checkpoint(file_name)
         plot_contour(v, title=file_name)
