@@ -392,7 +392,7 @@ function start()
     if error_plot
         plt = Plots.plot(error_save)
         title!("$(options_start[choice_start])_x=$(hx)_y=$(hy)_tau=$(tau)_Re=$(Re)_eps=epsilon1")
-        Plots.savefig(plt, "$(options_start[choice_start])_x=$(hx)_y=$(hy)_tau=$(tau)_Re=$(Re)_eps=epsilon1.png")
+        Plots.savefig(plt, "$(options_start[choice_start])_x=$(hx)_y=$(hy)_tau=$(tau)_Re=$(Re)_eps=$epsilon1.png")
     end
 
 
