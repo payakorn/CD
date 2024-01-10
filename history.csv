@@ -16,3 +16,7 @@ date,mode,hx,hy,tau,Re,elapsed_time,iteration
 2024-01-10T12:07:50.011,6-epsilon,0.01,0.01,0.0001,1000,47-seconds--373-milliseconds,612
 2024-01-10T12:09:18.698,6-epsilon,0.01,0.01,0.0001,1000,48-seconds--306-milliseconds,612
 2024-01-10T12:14:52.655,6-epsilon,0.01,0.01,0.0001,1000,2-minutes--41-seconds--318-milliseconds,2000
+2024-01-10T15:05:57.029,6-epsilon,0.01,0.01,0.0001,1000,20-seconds--330-milliseconds,100
+2024-01-10T15:07:41.909,6-epsilon,0.01,0.01,0.0001,1000,19-seconds--366-milliseconds,100
+2024-01-10T15:08:17.176,6-epsilon,0.01,0.01,0.0001,1000,17-seconds--547-milliseconds,100
+2024-01-10T15:11:39.212,6-epsilon,0.01,0.01,0.0001,1000,26-seconds--509-milliseconds,150
