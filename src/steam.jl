@@ -1,5 +1,5 @@
 # new section for Stream function
-function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=5)
+function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=20)
 
     # delete folder checkpoint
     rm("checkpoints", recursive=true, force=true)
@@ -407,11 +407,12 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
 end
 
 
-function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=5)
+function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=20)
 
     # delete folder checkpoints
-    rm("checkpoints", recursive=true, force=true)
-    mkpath("checkpoints")
+    location = "checkpoints/8_epsilon"
+    rm(location, recursive=true, force=true)
+    mkpath(location)
 
     # boundrary
     xr = 0
@@ -818,6 +819,7 @@ function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
             println("\t max \t abs u: $(maximum(x[1:2:end]))")
             println("\t max \t abs v: $(maximum(x[2:2:end]))")
 
+            u = x[1:2:end]
             v = x[2:2:end]
             error = maximum(abs.(x[2:2:end]-y[2:2:end]))
             println("\t error \t abs v: $(error)")
@@ -826,7 +828,8 @@ function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
             # save every 10 iterations
             if iteration % save_every == 0
                 # plot_contour(reshape(v, (Nx + 1, Ny + 1)), "fig/save/checkpoint_$iteration.png")
-                save_checkpoint("checkpoints/iter_$iteration.txt", reshape(v, (Nx + 1, Ny + 1)))
+                save_checkpoint(joinpath(location, "iter_u_$iteration.txt"), reshape(u, (Nx + 1, Ny + 1)))
+                save_checkpoint(joinpath(location, "iter_v_$iteration.txt"), reshape(v, (Nx + 1, Ny + 1)))
             end
             
             iteration += 1

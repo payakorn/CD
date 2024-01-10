@@ -390,9 +390,11 @@ function start()
     # plot  error
     error_plot = true
     if error_plot
-        plt = Plots.plot(error_save)
-        title!("$(options_start[choice_start])_x=$(hx)_y=$(hy)_tau=$(tau)_Re=$(Re)_eps=epsilon1")
-        Plots.savefig(plt, "$(options_start[choice_start])_x=$(hx)_y=$(hy)_tau=$(tau)_Re=$(Re)_eps=epsilon1.png")
+        len = length(error_save)
+        in_x = fld(len, 2):10:len
+        plt = scatter(in_x, error_save[in_x])
+        title!("$(options_start[choice_start])_x=$(hx)_y=$(hy)_tau=$(tau)_Re=$(Re)_eps=$epsilon1")
+        Plots.savefig(plt, "$(options_start[choice_start])_x=$(hx)_y=$(hy)_tau=$(tau)_Re=$(Re)_eps=$(epsilon1)_iter=$(iteration-1).png")
     end
 
 

@@ -1,2 +1,13 @@
 date,mode,hx,hy,tau,Re,elapsed_time,iteration
 2024-01-03T02:17:44.993,6-epsilon,0.01,0.01,0.0001,1000,52-seconds--720-milliseconds,612
+2024-01-03T11:33:09.785,6-epsilon,0.1,0.1,0.01,100,566-milliseconds,100
+2024-01-03T11:43:08.271,6-epsilon,0.01,0.01,0.0001,100,20-seconds--262-milliseconds,100
+2024-01-03T11:45:40.530,6-epsilon,0.01,0.01,0.0001,1000,18-seconds--821-milliseconds,100
+2024-01-03T11:46:33.782,6-epsilon,0.01,0.01,0.0001,1000,19-seconds--43-milliseconds,100
+2024-01-03T11:50:50.273,6-epsilon,0.01,0.01,0.0001,1000,20-seconds--732-milliseconds,100
+2024-01-03T11:54:28.553,6-epsilon,0.01,0.01,0.0001,1000,3-minutes--17-seconds--211-milliseconds,1000
+2024-01-03T11:58:25.950,6-epsilon,0.01,0.01,0.0001,1000,3-minutes--27-seconds--474-milliseconds,1000
+2024-01-03T12:05:25.006,6-epsilon,0.01,0.01,0.0001,1000,6-minutes--22-seconds--909-milliseconds,2000
+2024-01-03T14:02:45.100,6-epsilon,0.01,0.01,0.0001,1000,1-hour--3-minutes--13-seconds--254-milliseconds,20000
+2024-01-03T15:33:54.965,6-epsilon,0.01,0.01,0.0001,1000,2-minutes--8-seconds--509-milliseconds,612
+2024-01-03T17:01:06.526,6-epsilon,0.01,0.01,0.0001,1000,2-minutes--2-seconds--349-milliseconds,612
