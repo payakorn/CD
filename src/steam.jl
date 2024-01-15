@@ -1,5 +1,5 @@
 # new section for Stream function
-function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=20)
+function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=20, initial=nothing, iteration=1)
 
     # delete folder checkpoint
     location = "checkpoints/6_epsilon/$(hx)_$(hy)_$(tau)_$(Re)_$(epsilon[1])"
@@ -340,14 +340,18 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
     start_time = Dates.now()
 
     # y is an initial solution
-    y = zeros(2 * (Nx + 1) * (Ny + 1))
+    if isnothing(initial)
+        y = zeros(2 * (Nx + 1) * (Ny + 1))
+    else
+        y = initial
+        iteration = iteration
+    end
 
     # Loop updating x from x=A^-1*b
     # x is solution at time step n+1
     # y is solution at time step n
     x = deepcopy(y)
     error = 1
-    iteration = 1
     error_save = []
     while error > 1e-6 && iteration <= max_iteration
         if disp_error
