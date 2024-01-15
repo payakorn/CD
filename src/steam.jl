@@ -3,8 +3,10 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
 
     # delete folder checkpoint
     location = "checkpoints/6_epsilon/$(hx)_$(hy)_$(tau)_$(Re)_$(epsilon[1])"
-    rm(location, recursive=true, force=true)
-    mkpath(location)
+    if iteration == 1
+        rm(location, recursive=true, force=true)
+        mkpath(location)
+    end
 
     # boundrary
     xr = 0
@@ -215,6 +217,7 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
 
                     b[index_u(i, j)] = hx*right
                     b[index_v(i, j)] = 0
+
                 elseif j == 0
                     append!(index_i, index_u(i, j))
                     append!(index_j, index_v(i, j))
@@ -240,7 +243,9 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
 
                     b[index_u(i, j)] = hx*below
                     b[index_v(i, j)] = 0
+
                 else
+
                     # nonlinear terms
                     phi_x = x[index_v(i + 1, j)] - x[index_v(i - 1, j)]
                     phi_y = x[index_v(i, j + 1)] - x[index_v(i, j - 1)]
@@ -344,7 +349,7 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
         y = zeros(2 * (Nx + 1) * (Ny + 1))
     else
         y = initial
-        iteration = iteration
+        iteration = iteration + 1
     end
 
     # Loop updating x from x=A^-1*b
@@ -354,9 +359,6 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
     error = 1
     error_save = []
     while error > 1e-6 && iteration <= max_iteration
-        if disp_error
-            print("iteration: {}".format(iteration))
-        end
 
         if iteration == 1
             A, b = create_matrix_stream(x, x, Nx=Nx, Ny=Ny, tau=tau, Re=Re)
@@ -417,12 +419,14 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
 end
 
 
-function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=20)
+function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsilon=nothing, left=0, right=0, top=1, below=0, save_every=20, initial=nothing, iteration=1)
 
     # delete folder checkpoints
     location = "checkpoints/8_epsilon/$(hx)_$(hy)_$(tau)_$(Re)_$(epsilon[1])"
-    rm(location, recursive=true, force=true)
-    mkpath(location)
+    if iteration == 1
+        rm(location, recursive=true, force=true)
+        mkpath(location)
+    end
 
     # boundrary
     xr = 0
@@ -791,14 +795,19 @@ function sys_stream2(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
     start_time = Dates.now()
 
     # y is an initial solution
-    y = zeros(2 * (Nx + 1) * (Ny + 1))
+    if isnothing(initial)
+        y = zeros(2 * (Nx + 1) * (Ny + 1))
+    else
+        y = initial
+        iteration = iteration + 1
+    end
 
     # Loop updating x from x=A^-1*b
     # x is solution at time step n+1
     # y is solution at time step n
     x = deepcopy(y)
     error = 1
-    iteration = 1
+    # iteration = 1
     error_save = []
     while error > 1e-6 && iteration <= max_iteration
         if disp_error
@@ -894,7 +903,7 @@ function save_checkpoint(file_name::String, matrix)
 end
 
 
-function load_checkpoint(file_name::String)
+function load_solution_txt(file_name::String)
     readdlm(file_name)
 end
 
@@ -928,11 +937,16 @@ function natural(x, y)
 end
 
 
+function natural_sort(i)
+    sort(i, lt=natural)
+end
+
+
 function plot_gif(; save_name="anim_fps5.gif", folder="checkpoints")
     # file_names = ["checkpoint/iter_$iter.txt" for iter in 5:5:100]
     file_names = sort(glob("*", folder), lt=natural)
     anim = @animate for file_name in file_names
-        v = load_checkpoint(file_name)
+        v = load_solution_txt(file_name)
         plot_contour(v, title=file_name)
     end
     gif(anim, save_name, fps = 5)
