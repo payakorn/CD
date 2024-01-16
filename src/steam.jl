@@ -944,19 +944,20 @@ end
 
 function plot_gif()
     options = load_all_run()
-    options_txt = ["$i" for i in options]
+    options_txt = ["$(i[1])\tΔx = $(i[2])\tΔy = $(i[3])\tτ = $(i[4])\tRe = $(i[5])\tϵ = $(i[6])" for i in options]
     menu = RadioMenu(options_txt, pagesize=10)
-    choice = request("choose setting: ", menu)
+    choice = request("Choose setting: ", menu)
 
     mode, hx, hy, tau, Re, epsilon = options[choice]
 
     file_names = sort(glob("iter_v_*.txt", folder(mode, hx, hy, tau, Re, epsilon...)), lt=natural)
     anim = @animate for file_name in file_names
         v = load_solution_txt(file_name)
-        plot_contour(v, title="v_$(hx)--$(tau)--$(Re)--$(epsilon)")
+        iter = splitdir(file_name)[end]
+        plot_contour(v, title="$(hx)--$(tau)--$(Re)--$(epsilon)_$(iter)")
     end
 
-    save_name = "output_v.gif"
+    save_name = "gif/output_v.gif"
     gif(anim, save_name, fps = 5)
 end
 

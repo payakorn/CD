@@ -1,3 +1,5 @@
 date,mode,hx,hy,tau,Re,elapsed_time,iteration,epsilon
 2024-01-16T23:21:51.760,6_epsilon,0.1,0.1,0.010000000000000002,100,113-milliseconds,100,1.0e-8
 2024-01-16T23:37:20.902,6_epsilon,0.01,0.01,0.0001,1000,45-seconds--915-milliseconds,612,1.0e-10
+2024-01-16T23:59:53.119,6_epsilon,0.01,0.01,0.0001,1000,1-minute--15-seconds--292-milliseconds,1000,1.0e-9
+2024-01-17T00:01:38.774,6_epsilon,0.01,0.01,0.0001,1000,1-minute--14-seconds--967-milliseconds,2000,1.0e-9
