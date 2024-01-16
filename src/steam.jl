@@ -942,12 +942,56 @@ function natural_sort(i)
 end
 
 
-function plot_gif(; save_name="anim_fps5.gif", folder="checkpoints")
-    # file_names = ["checkpoint/iter_$iter.txt" for iter in 5:5:100]
-    file_names = sort(glob("*", folder), lt=natural)
+function plot_gif()
+    options = load_all_run()
+    options_txt = ["$i" for i in options]
+    menu = RadioMenu(options_txt, pagesize=10)
+    choice = request("choose setting: ", menu)
+
+    mode, hx, hy, tau, Re, epsilon = options[choice]
+
+    file_names = sort(glob("iter_v_*.txt", folder(mode, hx, hy, tau, Re, epsilon...)), lt=natural)
     anim = @animate for file_name in file_names
         v = load_solution_txt(file_name)
-        plot_contour(v, title=file_name)
+        plot_contour(v, title="v_$(hx)--$(tau)--$(Re)--$(epsilon)")
     end
+
+    save_name = "output_v.gif"
     gif(anim, save_name, fps = 5)
+end
+
+
+
+function load_history_dataframe()
+    CSV.File("history.csv") |> DataFrame
+end
+
+
+function load_all_run()
+    df = load_history_dataframe()
+    df = df[!, ["mode", "hx", "hy", "tau", "Re", "epsilon"]]
+    df = unique(df)
+
+    df_list = []
+
+    for data in eachrow(df)
+
+        mode = String(data.mode)
+        hx = data.hx
+        hy = data.hy
+        tau = data.tau
+        Re = data.Re
+        epsilon = data.epsilon
+
+        push!(df_list, (mode, hx, hy, tau, Re, epsilon))
+
+    end
+
+    return df_list[end:-1:1]
+end
+
+
+function load_latest_run()
+    df = load_all_run()
+    return df[1]
 end

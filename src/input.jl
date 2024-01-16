@@ -491,7 +491,7 @@ function start()
     u, v, elapsed_time, error_save, iteration = sys_stream(hx, hy, tau, Re; max_iteration=max_iteration, epsilon=epsilon, initial=x, iteration=iteration)
 
     # save history
-    save_history(starting_choice, hx, hy, tau, Re, elapsed_time, iteration-1)
+    save_history(starting_choice, hx, hy, tau, Re, elapsed_time, iteration-1, epsilon[1])
 
     # plot  error
     error_plot = true
@@ -509,25 +509,25 @@ function start()
 end
 
 
-function save_history(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re::Real, elapsed_time::Dates.CompoundPeriod, iteration::Integer)
+function save_history(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re::Real, elapsed_time::Dates.CompoundPeriod, iteration::Integer, epsilon)
 
     # change format of elapsed_time
     sti = replace("$(elapsed_time)", ' ' => '-')
     elapsed_time = replace(sti, ','=> '-')
 
-    head_name = "date,mode,hx,hy,tau,Re,elapsed_time,iteration\n"
+    head_name = "date,mode,hx,hy,tau,Re,elapsed_time,iteration,epsilon\n"
     if !isfile("history.csv")
 
         open("history.csv", "w") do file
             write(file, head_name)
-            data = "$(now()),$mode,$Δx,$Δy,$τ,$Re,$elapsed_time,$iteration\n"
+            data = "$(now()),$mode,$Δx,$Δy,$τ,$Re,$elapsed_time,$iteration,$epsilon\n"
             write(file, data)
         end
 
     else
 
         open("history.csv", "a") do file
-            data = "$(now()),$mode,$Δx,$Δy,$τ,$Re,$elapsed_time,$iteration\n"
+            data = "$(now()),$mode,$Δx,$Δy,$τ,$Re,$elapsed_time,$iteration,$epsilon\n"
             write(file, data)
         end
 
