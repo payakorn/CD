@@ -875,13 +875,22 @@ function plot_contour(v::Matrix; save_name=nothing, title=nothing)
     m = minimum(v)
     M = maximum(v)
 
-    sc1 = collect(m:-m/20:0)
-    sc2 = collect(0:M/100:M)
-    sc = [sc1; sc2]
+    # sc1 = collect(m:-m/20:0)
+    # sc1 = LinRange(1e-1, 1e-10, 70)
+    # sc1 = -[0.1, 0.01, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]
+    # sc2 = collect(0:M/100:M)
+    # sc = [sc1; sc2]
+
+    all_values = sort(unique(vec(v)))
+    lr = round(length(all_values) * 0.01) |> Int64
+    lr_m = round(length(all_values) * 0.01) |> Int64
+
+    sc = all_values[[1:10:lr; lr:lr_m:end-lr; (end-lr):end]]
 
     # plot contour
     # Plots.savefig(Plots.contour(u, fill=false, levels=sc), "test_u.pdf");
-    plt = Plots.contour(v, fill=false, levels=sc, color=:turbo), save_name
+    plt = Plots.contour(v, fill=false, levels=sc, color=:turbo)
+    # Plots.contour(v, fill=false, levels=sc, color=:turbo)
 
     # add title
     if !isnothing(title)
