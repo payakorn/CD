@@ -22,3 +22,7 @@ date,mode,hx,hy,tau,Re,elapsed_time,iteration,epsilon
 2024-01-17T15:25:15.375,6_epsilon,0.01,0.01,1.0e-6,10000.0,1-second--96-milliseconds,5,1.0e-11
 2024-01-17T15:29:48.373,6_epsilon,0.01,0.01,1.0e-6,10000.0,2-minutes--47-seconds--451-milliseconds,4000,1.0e-11
 2024-01-17T17:09:44.374,6_epsilon,0.01,0.01,1.0e-6,10000.0,17-minutes--50-seconds--493-milliseconds,10000,1.0e-11
+2024-01-30T22:15:41.308,6_epsilon,0.01,0.01,0.0001,1000,7-seconds--918-milliseconds,100,1.0e-9
+2024-01-30T22:27:50.418,6_epsilon,0.01,0.01,0.0001,1000,8-seconds--69-milliseconds,100,1.0e-8
+2024-01-30T22:35:13.295,6_epsilon,0.01,0.01,0.0001,1000,7-seconds--905-milliseconds,100,1.0e-10
+2024-01-30T22:35:35.603,6_epsilon,0.01,0.01,0.0001,1000,3-seconds--839-milliseconds,150,1.0e-8

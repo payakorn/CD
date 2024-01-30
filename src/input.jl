@@ -457,33 +457,38 @@ function start()
         return nothing
     else
 
-        if latest_iteration == 0
+        history = find_all_run()
+        options = ["start with zero vector"]
+        for (starting_choicee, hxx, hyy, tauu, Ree, epsilonn...) in history
+            push!(options, "$starting_choicee, Δx=$hxx, Δy=$hyy, τ=$tauu, Re=$(Ree), ϵ=$(epsilonn[1])")
+        end
+
+        # options = [
+        #     "run using the latest save solution as initial solution",
+        #     "run from zero initial solution",
+        # ]
+        # options = 
+        menu = RadioMenu(options, pagesize = 10)
+        initial_choice = request("Choose your favorite options: ", menu)
+
+        if initial_choice == 1
 
             x = nothing
             iteration = 1
-
+            
         else
-
-            options = [
-                "run using the latest save solution as initial solution",
-                "run from zero initial solution",
-            ]
-            menu = RadioMenu(options, pagesize = 10)
-            initial_choice = request("Choose your favorite options: ", menu)
-
-            if initial_choice == 1
-
-                x = get_latest_uv(starting_choice, hx, hy, tau, Re, epsilon...)
-                iteration = latest_iteration
-
-            elseif initial_choice == 2
-                
-                x = nothing
+            
+            @show (starting_choicee, hxx, hyy, tauu, Ree, epsilonn...) = history[initial_choice-1]
+            x = get_latest_uv(starting_choicee, hxx, hyy, tauu, Ree, epsilonn...)
+            
+            if latest_iteration == 0
                 iteration = 1
-
+            else
+                iteration = latest_iteration
             end
 
         end
+
 
     end
 
@@ -537,7 +542,7 @@ end
 
 
 function folder(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re::Real, epsilon...)
-    return joinpath("checkpoints", mode, "$(Δx)_$(Δy)_$(τ)_$(Re)_$(epsilon[1])")
+    return joinpath("checkpoints", mode, "$(Δx)_$(Δy)_$(τ)_$(Re)_$(epsilon[1])/")
 end
 
 
@@ -565,4 +570,27 @@ function count_save_history(mode::String, Δx::Float64, Δy::Float64, τ::Float6
 
         return the_number_of_last_file
     end
+end
+
+
+function find_all_run()
+    l = glob("*", "checkpoints/6_epsilon/")
+    l = append!(l, glob("*", "checkpoints/8_epsilon/"))
+    mode = [splitdir(xx[1])[2] for xx in splitdir.(l)]
+    file_name = [[parse(Float64, x) for x in xx] for xx in split.([xx[2] for xx in splitdir.(l)], "_")]
+
+    out = []
+    for (m, f) in zip(mode, file_name)
+        dx, dy, tau, Re, epsilon = f
+
+        if mode == "6_epsilon"
+            epsilon = [epsilon for i in 1:6]
+        elseif mode == "8_epsilon"
+            epsilon = [epsilon for i in 1:6]
+        end
+
+        push!(out, [m, dx, dy, tau, Int64(Re), epsilon])
+    end
+
+    return out
 end

@@ -7,6 +7,12 @@ function sys_stream1(hx, hy, tau, Re; max_iteration=100, disp_error=false, epsil
         rm(location, recursive=true, force=true)
         mkpath(location)
     end
+    
+    # in case iteration not 1
+    if isdir(location)
+        mkpath(location)
+    end
+
 
     # boundrary
     xr = 0
