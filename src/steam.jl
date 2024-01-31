@@ -911,6 +911,33 @@ function plot_contour(v::Matrix; save_name=nothing, title=nothing)
 end
 
 
+function plot_contour(mode::String, hx::Real, hy::Real, tau::Real, Re::Real, epsilon::Real, iter::Integer; file_name=nothing)
+    # load_solution_txt()
+
+    if mode == "6_epsilon"
+        epsilon = [epsilon for i in 1:6]
+    else
+        epsilon = [epsilon for i in 1:8]
+    end
+
+    location = joinpath(folder(mode, hx, hy, tau, Re, epsilon...), "iter_v_$iter.txt")
+    plot_contour(load_solution_txt(location), save_name="contour.png", title="iter_$iter")
+end
+
+
+function plot_contour()
+    mode, hx, hy, tau, Re, epsilon = selecting_history()
+    folder(mode, hx, hy, tau, Re, epsilon...)
+    locations = natural_sort(glob("iter_v_*.txt", folder(mode, hx, hy, tau, Re, epsilon...)))[end:-1:1]
+    options = [splitdir(xx)[2] for xx in locations]
+    choice = selecting_menu(options)
+    location = locations[choice]
+
+    v = load_solution_txt(location)
+    plot_contour(v, save_name="contour.png", title=options[choice])
+end
+
+
 function save_checkpoint(file_name::String, matrix)
     open(file_name, "w") do io
         writedlm(io, matrix)

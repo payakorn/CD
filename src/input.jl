@@ -444,6 +444,42 @@ function get_latest_uv(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re
 end
 
 
+function options_history()
+    history = find_all_run()
+    options = String[]
+    for (starting_choicee, hxx, hyy, tauu, Ree, epsilonn...) in history
+        push!(options, "$starting_choicee\tΔx=$hxx\tΔy=$hyy\tτ=$tauu\tRe=$(Ree)\tϵ=$(epsilonn[1])")
+    end
+    return options
+end
+
+
+function selecting_history()
+    options = options_history()
+    menu = RadioMenu(options, pagesize = 15)
+    choice = request("Choose your setting: ", menu)
+    mode, hx, hy, tau, Re, epsilon = find_all_run()[choice]
+
+    return mode, hx, hy, tau, Re, epsilon
+end
+
+
+function selecting()
+    starting_choice, sys_stream, epsilon = seleting_start()
+    hx, hy, tau, Re, max_iteration = selecting_settings(epsilon=epsilon, mode=starting_choice)
+
+    return starting_choice, hx, hy, tau, Re, epsilon, sys_stream, max_iteration
+end
+
+
+function selecting_menu(options)
+    menu = RadioMenu(options, pagesize = 15)
+    choice = request("Choose your favorite choice: ", menu)
+
+    return choice
+end
+
+
 function start()
     
     
@@ -460,7 +496,8 @@ function start()
         history = find_all_run()
         options = ["start with zero vector"]
         for (starting_choicee, hxx, hyy, tauu, Ree, epsilonn...) in history
-            push!(options, "$starting_choicee, Δx=$hxx, Δy=$hyy, τ=$tauu, Re=$(Ree), ϵ=$(epsilonn[1])")
+            push!(options, "$starting_choicee\tΔx=$hxx\tΔy=$hyy\tτ=$tauu\tRe=$(Ree)\tϵ=$(epsilonn[1])")
+            # ["$(i[1])\tΔx = $(i[2])\tΔy = $(i[3])\tτ = $(i[4])\tRe = $(i[5])\tϵ = $(i[6])" for i in options]
         end
 
         # options = [
@@ -478,7 +515,7 @@ function start()
             
         else
             
-            @show (starting_choicee, hxx, hyy, tauu, Ree, epsilonn...) = history[initial_choice-1]
+            (starting_choicee, hxx, hyy, tauu, Ree, epsilonn...) = history[initial_choice-1]
             x = get_latest_uv(starting_choicee, hxx, hyy, tauu, Ree, epsilonn...)
             
             if latest_iteration == 0
@@ -541,7 +578,12 @@ function save_history(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re:
 end
 
 
-function folder(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re::Real, epsilon...)
+function folder(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re::Integer, epsilon...)
+    folder(mode, Δx, Δy, τ, Float64(Re), epsilon...)
+end
+
+
+function folder(mode::String, Δx::Float64, Δy::Float64, τ::Float64, Re::Float64, epsilon...)
     return joinpath("checkpoints", mode, "$(Δx)_$(Δy)_$(τ)_$(Re)_$(epsilon[1])/")
 end
 
@@ -589,7 +631,7 @@ function find_all_run()
             epsilon = [epsilon for i in 1:6]
         end
 
-        push!(out, [m, dx, dy, tau, Int64(Re), epsilon])
+        push!(out, [m, dx, dy, tau, Re, epsilon])
     end
 
     return out
